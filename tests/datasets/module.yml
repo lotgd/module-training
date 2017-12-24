@@ -23,6 +23,22 @@ characters:
     health: 10
     level: 1
     deletedAt:
+  -
+    id: 4
+    name: "Dead Tester"
+    displayName: "Dead Tester"
+    maxHealth: 10
+    health: 10
+    level: 1
+    deletedAt:
+  -
+    id: 5
+    name: "Lvl 15 Tester"
+    displayName: "Lvl 15 Tester"
+    maxHealth: 150
+    health: 150
+    level: 15
+    deletedAt:
 
 scenes:
   -

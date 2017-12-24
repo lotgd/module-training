@@ -8,6 +8,7 @@ use LotGD\Core\Events\EventContext;
 use LotGD\Core\Events\EventContextData;
 use LotGD\Core\Game;
 use LotGD\Core\Models\Character;
+use LotGD\Core\Models\Viewpoint;
 use LotGD\Module\Res\Fight\Fight;
 use LotGD\Module\Res\Fight\Tests\helpers\EventRegistry;
 use LotGD\Module\Res\Fight\Module as ResFightModule;
@@ -60,12 +61,12 @@ class ModuleTest extends ModuleTestCase
         $this->assertHasAction($v, ["getDestinationSceneId", 1], "Back");
     }
 
-    public function testIfMasterTellsInexperiencedCharacterToComeBackLater()
+    protected function goToYard(int $characterId, callable $executeBeforeTakingActionToYard = null): array
     {
         /** @var Game $game */
         $game = $this->g;
         /** @var Character $character */
-        $character = $this->getEntityManager()->getRepository(Character::class)->find(2);
+        $character = $this->getEntityManager()->getRepository(Character::class)->find($characterId);
         $game->setCharacter($character);
 
         // New day
@@ -77,7 +78,19 @@ class ModuleTest extends ModuleTestCase
         $this->assertSame("Village", $v->getTitle());
         // Training Yard
         $action = $this->assertHasAction($v, ["getDestinationSceneId", 5], "Outside");
+
+        if ($executeBeforeTakingActionToYard !== NULL) {
+            $executeBeforeTakingActionToYard($game, $v, $character);
+        }
+
         $game->takeAction($action->getId());
+
+        return [$game, $v, $character];
+    }
+
+    public function testIfMasterTellsInexperiencedCharacterToComeBackLater()
+    {
+        [$game, $v, $character] = $this->goToYard(2);
         $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
 
         // Set experience to 0 and ask the master.
@@ -93,22 +106,7 @@ class ModuleTest extends ModuleTestCase
 
     public function testIfMasterTellsExperiencedCharacterThatHeIsReady()
     {
-        /** @var Game $game */
-        $game = $this->g;
-        /** @var Character $character */
-        $character = $this->getEntityManager()->getRepository(Character::class)->find(3);
-        $game->setCharacter($character);
-
-        // New day
-        $v = $game->getViewpoint();
-        $this->assertSame("It is a new day!", $v->getTitle());
-        // Village
-        $action = $v->getActionGroups()[0]->getActions()[0];
-        $game->takeAction($action->getId());
-        $this->assertSame("Village", $v->getTitle());
-        // Training Yard
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", 5], "Outside");
-        $game->takeAction($action->getId());
+        [$game, $v, $character] = $this->goToYard(3);
         $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
 
         // Set experience to 100 and ask the master.
@@ -120,6 +118,27 @@ class ModuleTest extends ModuleTestCase
         $description = explode("\n\n", $v->getDescription());
         $this->assertContains("You approach Mieraband timidly and inquire as to your standing in the class.", $description);
         $this->assertContains("Mieraband says, \"Gee, your muscles are getting bigger than mine...\"", $description);
+    }
+
+    public function testIfDeadCharacterCannotChallengeOrQuestionTheMaster()
+    {
+        [$game, $v, $character] = $this->goToYard(
+            4,
+            function(Game $g, Viewpoint $v, Character $character) {
+                $character->setHealth(0);
+            }
+        );
+
+        $this->assertNotHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $this->assertNotHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+    }
+
+    public function testIfCharacterAbove14CannotChallengeOrQuestionTheMaster()
+    {
+        [$game, $v, $character] = $this->goToYard(5);
+
+        $this->assertNotHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $this->assertNotHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
     }
 
     public function testIfMasterInstaDefeatsCharacterIfHeHasNotEnoughExperience()

@@ -102,7 +102,7 @@ class TrainingGround
 
         if ($c->isAlive() === false) {
             # You are dead.
-        } elseif ($c->getLevel() > 15) {
+        } elseif ($c->getLevel() >= 15) {
             # You are level 15, no master.
         } elseif ($c->getProperty(TrainingModule::CharacterPropertySeenMaster) > 0) {
             # You are fit for challenging you master, but did it already today.
@@ -117,7 +117,7 @@ class TrainingGround
             /** @var Master $m */
             $m = (new MasterManager($g))->getMaster($c->getLevel());
 
-            self::addYardNavigation($v);
+            self::addYardActions($v);
 
             $v->setDescription(sprintf(
                 "The sound of conflict surrounds you.  The clang of weapons in grisly battle 
@@ -131,7 +131,11 @@ class TrainingGround
         return $context;
     }
 
-    protected static function addYardNavigation(Viewpoint $v): void
+    /**
+     * Helper method to add standard actions to the yard
+     * @param Viewpoint $v
+     */
+    protected static function addYardActions(Viewpoint $v): void
     {
         $trainingId = $v->getScene()->getId();
 
@@ -186,7 +190,7 @@ class TrainingGround
             ));
         }
 
-        self::addYardNavigation($v);
+        self::addYardActions($v);
 
         return $context;
     }
