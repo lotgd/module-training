@@ -56,6 +56,22 @@ characters:
     health: 10
     level: 1
     deletedAt:
+  -
+    id: 8
+    name: "Will loose."
+    displayName: "Will loose."
+    maxHealth: 10
+    health: 10
+    level: 1
+    deletedAt:
+  -
+    id: 9
+    name: "Will win."
+    displayName: "Will win."
+    maxHealth: 1000
+    health: 10
+    level: 1
+    deletedAt:
 
 scenes:
   -

@@ -168,6 +168,32 @@ class ModuleTest extends ModuleTestCase
         $this->assertHasAction($v, ["getDestinationSceneId", 1], "Back");
     }
 
+    public function testIfCharacterCannotRechallengeMasterIfHeLooses()
+    {
+        [$game, $v, $character] = $this->goToYard(8);
+
+        $action = $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+
+        $character->setHealth(1);
+
+        $game->takeAction($action->getId());
+        $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+
+        // Attack until someone dies.
+        do {
+            $game->takeAction($action->getId());
+
+            if ($character->getProperty(ResFightModule::CharacterPropertyBattleState) !== null){
+                $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+            } else {
+                break;
+            }
+        } while (true);
+
+        Debug::dump($v);
+    }
+
+
     public function _testModuleFlowWhileCharacterStaysAlive()
     {
         /** @var Game $game */
