@@ -259,23 +259,7 @@ class TrainingGround
             $battle = $context->getDataField("battle");
             $viewpoint = $context->getDataField("viewpoint");
             $referrerSceneId = $context->getDataField("referrerSceneId");
-            $character = $g->getCharacter();;
-
-            if ($battle->getWinner() === $character) {
-                $viewpoint->setTitle("You won!");
-
-                $viewpoint->addDescriptionParagraph(sprintf(
-                    "You defeated %s. You gain no experience.",
-                    $battle->getLoser()->getDisplayName()
-                ));
-            } else {
-                $viewpoint->setTitle("You died!");
-
-                $viewpoint->addDescriptionParagraph(sprintf(
-                    "You have been defeated by %s. They stand over your dead body, laughting..",
-                    $battle->getWinner()->getDisplayName()
-                ));
-            }
+            $character = $g->getCharacter();
 
             // Display normal actions (need API later for this, from core)
             $scene = $g->getEntityManager()->getRepository(Scene::class)->find($referrerSceneId);
@@ -319,8 +303,26 @@ class TrainingGround
 
             $viewpoint->setActionGroups($actionGroups);
 
-            // Display "search" actions
-            $context = self::handleMainYard($g, $context, $referrerSceneId);
+            if ($battle->getWinner() === $character) {
+                $viewpoint->setTitle("You won!");
+
+                $viewpoint->addDescriptionParagraph(sprintf(
+                    "You defeated %s. You gain a level!",
+                    $battle->getLoser()->getDisplayName()
+                ));
+
+                $character->setProperty(Module::CharacterPropertySeenMaster, false);
+                ResFightModule::characterLevelUp($character);
+
+                self::addYardActions($viewpoint);
+            } else {
+                $viewpoint->setTitle("You lost!");
+
+                $viewpoint->addDescriptionParagraph(sprintf(
+                    "You have been defeated by %s. They stand over your dead body, laughting..",
+                    $battle->getWinner()->getDisplayName()
+                ));
+            }
         }
 
         return $context;

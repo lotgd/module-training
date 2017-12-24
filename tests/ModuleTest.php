@@ -174,10 +174,11 @@ class ModuleTest extends ModuleTestCase
 
         $action = $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
 
-        $character->setHealth(1);
+        $character->setProperty(ResFightModule::CharacterPropertyCurrentExperience, 100000);
 
         $game->takeAction($action->getId());
         $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+        $character->setHealth(0);
 
         // Attack until someone dies.
         do {
@@ -190,7 +191,43 @@ class ModuleTest extends ModuleTestCase
             }
         } while (true);
 
-        Debug::dump($v);
+        $descs = explode("\n\n", $v->getDescription());
+        $descs = array_map("trim", $descs);
+        $this->assertContains("You have been defeated by Mieraband. They stand over your dead body, laughting..", $descs);
+        $this->assertTrue($character->getProperty(Module::CharacterPropertySeenMaster));
+        $this->assertNotHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+    }
+
+    public function testIfCharacterCanRechallengeMasterIfHeWinsAndIfHeReallyIncreasesHisLevel()
+    {
+        [$game, $v, $character] = $this->goToYard(9);
+
+        $action = $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+
+        $character->setProperty(ResFightModule::CharacterPropertyCurrentExperience, 100000);
+
+        $game->takeAction($action->getId());
+        $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+
+        // Attack until someone dies.
+        do {
+            $character->setHealth(10); // constantly heal.
+            $game->takeAction($action->getId());
+
+            if ($character->getProperty(ResFightModule::CharacterPropertyBattleState) !== null){
+                $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+            } else {
+                break;
+            }
+        } while (true);
+
+        $descs = explode("\n\n", $v->getDescription());
+        $descs = array_map("trim", $descs);
+        $this->assertContains("You defeated Mieraband. You gain a level!", $descs);
+
+        $this->assertSame(2, $character->getLevel());
+        $this->assertFalse($character->getProperty(Module::CharacterPropertySeenMaster));
+        $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
     }
 
 
