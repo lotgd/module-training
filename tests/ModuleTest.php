@@ -131,6 +131,7 @@ class ModuleTest extends ModuleTestCase
 
         $this->assertNotHasAction($v, ["getTitle", "Question Master"], "The Yard");
         $this->assertNotHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+        $this->assertSame("You are dead. How are you going to challenge your master if you cannot even survive killing enemies? Come back tomorrow.", $v->getDescription());
     }
 
     public function testIfCharacterAbove14CannotChallengeOrQuestionTheMaster()
@@ -141,9 +142,30 @@ class ModuleTest extends ModuleTestCase
         $this->assertNotHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
     }
 
+    public function testIfCharacterCannotChallengeOrQuestionMasterIfHeHasAlreadySeenHimToday()
+    {
+        [$game, $v, $character] = $this->goToYard(
+            6,
+            function(Game $g, Viewpoint $v, Character $c) {
+                $c->setProperty(Module::CharacterPropertySeenMaster, true);
+            }
+        );
+
+        $this->assertNotHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $this->assertNotHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+    }
+
     public function testIfMasterInstaDefeatsCharacterIfHeHasNotEnoughExperience()
     {
+        [$game, $v, $character] = $this->goToYard(7);
 
+        $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $action = $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+
+        $game->takeAction($action->getId());
+
+        $this->assertTrue($character->getProperty(Module::CharacterPropertySeenMaster));
+        $this->assertHasAction($v, ["getDestinationSceneId", 1], "Back");
     }
 
     public function _testModuleFlowWhileCharacterStaysAlive()

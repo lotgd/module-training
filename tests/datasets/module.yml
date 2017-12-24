@@ -39,6 +39,23 @@ characters:
     health: 150
     level: 15
     deletedAt:
+  -
+    id: 6
+    name: "Al Rea Dyseen"
+    displayName: "Al Rea Dyseen"
+    maxHealth: 10
+    health: 10
+    level: 1
+    deletedAt:
+
+  -
+    id: 7
+    name: "Not seen but inexperienced."
+    displayName: "Not seen but inexperienced."
+    maxHealth: 10
+    health: 10
+    level: 1
+    deletedAt:
 
 scenes:
   -

@@ -22,6 +22,7 @@ use LotGD\Module\Res\Fight\Module as ResFightModule;
 use LotGD\Module\Training\Managers\MasterManager;
 use LotGD\Module\Training\Models\Master;
 use LotGD\Module\Training\Module as TrainingModule;
+use LotGD\Module\Training\Module;
 
 /**
  * Class TrainingGround
@@ -102,6 +103,9 @@ class TrainingGround
 
         if ($c->isAlive() === false) {
             # You are dead.
+            $v->setDescription(
+                "You are dead. How are you going to challenge your master if you cannot even survive killing enemies? Come back tomorrow."
+            );
         } elseif ($c->getLevel() >= 15) {
             # You are level 15, no master.
         } elseif ($c->getProperty(TrainingModule::CharacterPropertySeenMaster) > 0) {
@@ -154,6 +158,7 @@ class TrainingGround
     }
 
     /**
+     * Handles if the character wants to ask the master if he is ready.
      * @param Game $g
      * @param EventContext $context
      * @return EventContext
@@ -210,12 +215,26 @@ class TrainingGround
         /** @var Master $m */
         $m = (new MasterManager($g))->getMaster($c->getLevel());
 
-        // @Todo: Check if character is experienced enough.
-        //
         $v->setTitle("A fight against your master!");
+        $c->setProperty(Module::CharacterPropertySeenMaster, true);
+
+        // Character has not enough experience
+        if (ResFightModule::characterHasNeededExperience($c) == false) {
+            $v->setDescription(sprintf(
+                "You ready your weapon and approach your master, %1\$s.
+                
+                A small crowd of onlookers has gathered, and y ou briefly notice the smiles in their faces, but you feel confident.
+                You bow before %1\$s, and execute a perfect spin-attack, only to realize that you are holding NOTHING! %1\$s stands
+                beore you holding your weapon. Meekly you retrieve your weapon, and slink out of the training grounds to the sound
+                of boisterous guffaws.",
+                $m->getDisplayName()
+            ));
+
+            return $context;
+        }
 
         $v->setDescription(sprintf(
-            "Your master quickly spins around %s and taunts you to attack first, being sure that you'll never
+            "Your master quickly spins around you and taunts you to attack first, being sure that you'll never
             be victorious."
         ));
 
