@@ -7,6 +7,23 @@ characters:
     health: 10
     level: 1
     deletedAt:
+  -
+    id: 2
+    name: "Asking Questions 1"
+    displayName: "Asking Questions 1"
+    maxHealth: 10
+    health: 10
+    level: 1
+    deletedAt:
+  -
+    id: 3
+    name: "Asking Questions 2"
+    displayName: "Asking Questions 2"
+    maxHealth: 10
+    health: 10
+    level: 1
+    deletedAt:
+
 scenes:
   -
     id: 1

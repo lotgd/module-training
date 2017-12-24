@@ -3,13 +3,14 @@ declare(strict_types=1);
 
 namespace LotGD\Module\Training\Tests;
 
+use Doctrine\Common\Util\Debug;
 use LotGD\Core\Events\EventContext;
 use LotGD\Core\Events\EventContextData;
 use LotGD\Core\Game;
 use LotGD\Core\Models\Character;
 use LotGD\Module\Res\Fight\Fight;
 use LotGD\Module\Res\Fight\Tests\helpers\EventRegistry;
-use LotGD\Module\Res\Fight\Module as FightModule;
+use LotGD\Module\Res\Fight\Module as ResFightModule;
 
 use LotGD\Module\Training\Module;
 
@@ -39,7 +40,7 @@ class ModuleTest extends ModuleTestCase
         /** @var Game $game */
         $game = $this->g;
         /** @var Character $character */
-        $character = $this->getEntityManager()->getRepository(Character::class)->findById(1)[0];
+        $character = $this->getEntityManager()->getRepository(Character::class)->find(1);
         $game->setCharacter($character);
 
         // New day
@@ -57,6 +58,73 @@ class ModuleTest extends ModuleTestCase
         $game->takeAction($action->getId());
         $this->assertSame("Bluspring's Warrior Training", $v->getTitle());
         $this->assertHasAction($v, ["getDestinationSceneId", 1], "Back");
+    }
+
+    public function testIfMasterTellsInexperiencedCharacterToComeBackLater()
+    {
+        /** @var Game $game */
+        $game = $this->g;
+        /** @var Character $character */
+        $character = $this->getEntityManager()->getRepository(Character::class)->find(2);
+        $game->setCharacter($character);
+
+        // New day
+        $v = $game->getViewpoint();
+        $this->assertSame("It is a new day!", $v->getTitle());
+        // Village
+        $action = $v->getActionGroups()[0]->getActions()[0];
+        $game->takeAction($action->getId());
+        $this->assertSame("Village", $v->getTitle());
+        // Training Yard
+        $action = $this->assertHasAction($v, ["getDestinationSceneId", 5], "Outside");
+        $game->takeAction($action->getId());
+        $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+
+        // Set experience to 0 and ask the master.
+        $character->setProperty(ResFightModule::CharacterPropertyCurrentExperience, 0);
+        $game->takeAction($action->getId());
+        $this->assertSame("Bluspring's Warrior Training", $v->getTitle());
+        $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $this->assertHasAction($v, ["getDestinationSceneId", 1], "Back");
+        $description = explode("\n\n", $v->getDescription());
+        $this->assertContains("You approach Mieraband timidly and inquire as to your standing in the class.", $description);
+        $this->assertContains("Mieraband states that you will need 100 more experience before you are ready to challenge him in battle.", $description);
+    }
+
+    public function testIfMasterTellsExperiencedCharacterThatHeIsReady()
+    {
+        /** @var Game $game */
+        $game = $this->g;
+        /** @var Character $character */
+        $character = $this->getEntityManager()->getRepository(Character::class)->find(3);
+        $game->setCharacter($character);
+
+        // New day
+        $v = $game->getViewpoint();
+        $this->assertSame("It is a new day!", $v->getTitle());
+        // Village
+        $action = $v->getActionGroups()[0]->getActions()[0];
+        $game->takeAction($action->getId());
+        $this->assertSame("Village", $v->getTitle());
+        // Training Yard
+        $action = $this->assertHasAction($v, ["getDestinationSceneId", 5], "Outside");
+        $game->takeAction($action->getId());
+        $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+
+        // Set experience to 100 and ask the master.
+        $character->setProperty(ResFightModule::CharacterPropertyCurrentExperience, 100);
+        $game->takeAction($action->getId());
+        $this->assertSame("Bluspring's Warrior Training", $v->getTitle());
+        $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $this->assertHasAction($v, ["getDestinationSceneId", 1], "Back");
+        $description = explode("\n\n", $v->getDescription());
+        $this->assertContains("You approach Mieraband timidly and inquire as to your standing in the class.", $description);
+        $this->assertContains("Mieraband says, \"Gee, your muscles are getting bigger than mine...\"", $description);
+    }
+
+    public function testIfMasterInstaDefeatsCharacterIfHeHasNotEnoughExperience()
+    {
+
     }
 
     public function _testModuleFlowWhileCharacterStaysAlive()
@@ -109,7 +177,7 @@ class ModuleTest extends ModuleTestCase
         do {
             $game->takeAction($action->getId());
 
-            if ($character->getProperty(FightModule::CharacterPropertyBattleState) !== null){
+            if ($character->getProperty(ResFightModule::CharacterPropertyBattleState) !== null){
                 $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
             } else {
                 break;
