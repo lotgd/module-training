@@ -16,6 +16,7 @@ use LotGD\Core\Tests\ModelTestCase;
 use LotGD\Core\Models\Module as ModuleModel;
 
 use LotGD\Module\Training\Module;
+use PHPUnit\Framework\AssertionFailedError;
 
 class ModuleTestCase extends ModelTestCase
 {
@@ -137,13 +138,20 @@ class ModuleTestCase extends ModelTestCase
     protected function assertNotHasAction(Viewpoint $viewpoint, array $actionParams, ?string $groupTitle = null): void
     {
         $action = $this->searchAction($viewpoint, $actionParams, $groupTitle);
-        $this->assertNull($action);
+
+        if ($action !== null) {
+            throw new AssertionFailedError("Assertion that viewpoint has not an action failed.");
+        }
     }
 
     protected function assertHasAction(Viewpoint $viewpoint, array $actionParams, ?string $groupTitle = null): Action
     {
         $action = $this->searchAction($viewpoint, $actionParams, $groupTitle);
-        $this->assertNotNull($action);
+
+        if ($action === null) {
+            throw new AssertionFailedError("Assertion that viewpoint has action failed.");
+        }
+
         return $action;
     }
 }
