@@ -17,7 +17,7 @@ use LotGD\Core\Tools\Model\Deletor;
  * Class Creature
  * @package LotGD\Module\Training\Models
  * @Entity
- * @Table(name="training_masters")
+ * @Table(name="masters")
  */
 class Master extends BasicEnemy implements CreateableInterface
 {

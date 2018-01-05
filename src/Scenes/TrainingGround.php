@@ -17,6 +17,7 @@ use LotGD\Core\Models\SceneConnection;
 use LotGD\Core\Models\SceneConnectionGroup;
 use LotGD\Core\Models\Viewpoint;
 use LotGD\Module\Res\Fight\Fight;
+use LotGD\Module\Res\Fight\Models\CharacterResFightExtension;
 use LotGD\Module\Res\Fight\Module as ResFightModule;
 
 use LotGD\Module\Training\Managers\MasterManager;
@@ -177,17 +178,14 @@ class TrainingGround
             $m->getDisplayName()
         ));
 
-        if (ResFightModule::characterHasNeededExperience($c)) {
+        if (CharacterResFightExtension::characterHasRequiredExperience($c, $g)) {
             $v->addDescriptionParagraph(sprintf(
                 "%s says, \"Gee, your muscles are getting bigger than mine...\"",
                 $m->getDisplayName()
             ));
         } else {
-            $experienceMax = $c->getProperty(
-                ResFightModule::CharacterPropertyNeededExperience,
-                ResFightModule::getNeededExperienceByLevel($c->getLevel())
-            );
-            $experienceNeeded = $experienceMax - $c->getProperty(ResFightModule::CharacterPropertyCurrentExperience, 0);
+            $experienceMax = CharacterResFightExtension::getRequiredExperienceForCharacter($c, $g);
+            $experienceNeeded = $experienceMax - CharacterResFightExtension::getCurrentExperienceForCharacter($c);
 
             $v->addDescriptionParagraph(sprintf(
                 "%s states that you will need %s more experience before you are ready to challenge him in battle.",
@@ -219,7 +217,7 @@ class TrainingGround
         $c->setProperty(Module::CharacterPropertySeenMaster, true);
 
         // Character has not enough experience
-        if (ResFightModule::characterHasNeededExperience($c) == false) {
+        if (CharacterResFightExtension::characterHasRequiredExperience($c, $g) == false) {
             $v->setDescription(sprintf(
                 "You ready your weapon and approach your master, %1\$s.
                 
@@ -312,7 +310,7 @@ class TrainingGround
                 ));
 
                 $character->setProperty(Module::CharacterPropertySeenMaster, false);
-                ResFightModule::characterLevelUp($character);
+                CharacterResFightExtension::levelUpCharacter($character, $g);
 
                 self::addYardActions($viewpoint);
             } else {
