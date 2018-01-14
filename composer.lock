@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0ab33595b075616dc18277fa0aa0a900",
-    "content-hash": "a19015a9bcf874ea72ac8fde9b8a9584",
+    "hash": "766bfb34797dc6b5f0fdcf3544920ce5",
+    "content-hash": "e80d528d9368d639ecb8b9b03b3edb5e",
     "packages": [
         {
             "name": "behat/transliterator",
@@ -109,16 +109,16 @@
         },
         {
             "name": "composer/composer",
-            "version": "1.6.1",
+            "version": "1.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "9445e12fb3b3db0c4aaeb8e492dd90c2a42b493c"
+                "reference": "db191abd24b0be110c98ba2271ca992e1c70962f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/9445e12fb3b3db0c4aaeb8e492dd90c2a42b493c",
-                "reference": "9445e12fb3b3db0c4aaeb8e492dd90c2a42b493c",
+                "url": "https://api.github.com/repos/composer/composer/zipball/db191abd24b0be110c98ba2271ca992e1c70962f",
+                "reference": "db191abd24b0be110c98ba2271ca992e1c70962f",
                 "shasum": ""
             },
             "require": {
@@ -182,7 +182,7 @@
                 "dependency",
                 "package"
             ],
-            "time": "2018-01-04 13:45:25"
+            "time": "2018-01-05 14:28:42"
         },
         {
             "name": "composer/semver",
@@ -700,20 +700,20 @@
         },
         {
             "name": "doctrine/inflector",
-            "version": "v1.2.0",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/inflector.git",
-                "reference": "e11d84c6e018beedd929cff5220969a3c6d1d462"
+                "reference": "5527a48b7313d15261292c149e55e26eae771b0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/inflector/zipball/e11d84c6e018beedd929cff5220969a3c6d1d462",
-                "reference": "e11d84c6e018beedd929cff5220969a3c6d1d462",
+                "url": "https://api.github.com/repos/doctrine/inflector/zipball/5527a48b7313d15261292c149e55e26eae771b0a",
+                "reference": "5527a48b7313d15261292c149e55e26eae771b0a",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.0"
+                "php": "^7.1"
             },
             "require-dev": {
                 "phpunit/phpunit": "^6.2"
@@ -721,7 +721,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2.x-dev"
+                    "dev-master": "1.3.x-dev"
                 }
             },
             "autoload": {
@@ -763,7 +763,7 @@
                 "singularize",
                 "string"
             ],
-            "time": "2017-07-22 12:18:28"
+            "time": "2018-01-09 20:05:19"
         },
         {
             "name": "doctrine/instantiator",
@@ -951,16 +951,16 @@
         },
         {
             "name": "gedmo/doctrine-extensions",
-            "version": "v2.4.32",
+            "version": "v2.4.33",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Atlantic18/DoctrineExtensions.git",
-                "reference": "a268224b312353be62d72e6390a286f4166a7542"
+                "reference": "d5fdc573b6a2ecfa29c070ecb3db8397ac55ed78"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/a268224b312353be62d72e6390a286f4166a7542",
-                "reference": "a268224b312353be62d72e6390a286f4166a7542",
+                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/d5fdc573b6a2ecfa29c070ecb3db8397ac55ed78",
+                "reference": "d5fdc573b6a2ecfa29c070ecb3db8397ac55ed78",
                 "shasum": ""
             },
             "require": {
@@ -1025,7 +1025,7 @@
                 "tree",
                 "uploadable"
             ],
-            "time": "2017-12-28 14:36:10"
+            "time": "2018-01-08 14:13:45"
         },
         {
             "name": "justinrainbow/json-schema",
@@ -1095,16 +1095,16 @@
         },
         {
             "name": "lotgd/core",
-            "version": "dev-feature/viewpoint-api",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lotgd/core.git",
-                "reference": "c0edd3ac671e754fc57a6b92f6fb679d2fc81da7"
+                "reference": "efb333d08ab0d05d93e6819b82faa53d003061b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lotgd/core/zipball/c0edd3ac671e754fc57a6b92f6fb679d2fc81da7",
-                "reference": "c0edd3ac671e754fc57a6b92f6fb679d2fc81da7",
+                "url": "https://api.github.com/repos/lotgd/core/zipball/efb333d08ab0d05d93e6819b82faa53d003061b5",
+                "reference": "efb333d08ab0d05d93e6819b82faa53d003061b5",
                 "shasum": ""
             },
             "require": {
@@ -1137,10 +1137,10 @@
             ],
             "description": "Core functionality for Legend of the Green Dragon, a text-based RPG game.",
             "support": {
-                "source": "https://github.com/lotgd/core/tree/feature/viewpoint-api",
+                "source": "https://github.com/lotgd/core/tree/feature/updated-models",
                 "issues": "https://github.com/lotgd/core/issues"
             },
-            "time": "2018-01-05 09:30:59"
+            "time": "2018-01-10 07:27:56"
         },
         {
             "name": "lotgd/module-new-day",
@@ -1148,16 +1148,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/lotgd/module-new-day.git",
-                "reference": "33751e95f975539126131095853f219b57ed37d1"
+                "reference": "8450594d8075e7b8b136a1a5ca075c6b643ace02"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lotgd/module-new-day/zipball/33751e95f975539126131095853f219b57ed37d1",
-                "reference": "33751e95f975539126131095853f219b57ed37d1",
+                "url": "https://api.github.com/repos/lotgd/module-new-day/zipball/8450594d8075e7b8b136a1a5ca075c6b643ace02",
+                "reference": "8450594d8075e7b8b136a1a5ca075c6b643ace02",
                 "shasum": ""
             },
             "require": {
-                "lotgd/core": "dev-feature/viewpoint-api as v0.3.3-alpha",
+                "lotgd/core": "dev-master as v0.3.3-alpha",
                 "lotgd/module-village": "dev-master as v0.3.3-alpha"
             },
             "require-dev": {
@@ -1185,7 +1185,7 @@
                 "source": "https://github.com/lotgd/module-new-day/tree/master",
                 "issues": "https://github.com/lotgd/module-new-day/issues"
             },
-            "time": "2018-01-04 16:40:45"
+            "time": "2018-01-10 11:03:30"
         },
         {
             "name": "lotgd/module-res-fight",
@@ -1193,16 +1193,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/lotgd/module-res-fight.git",
-                "reference": "5c119112b5e71c93e35c5928ac833e5df187f9aa"
+                "reference": "b83df97fc8f565af7ceaa7cd857ff9d773220fda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lotgd/module-res-fight/zipball/5c119112b5e71c93e35c5928ac833e5df187f9aa",
-                "reference": "5c119112b5e71c93e35c5928ac833e5df187f9aa",
+                "url": "https://api.github.com/repos/lotgd/module-res-fight/zipball/b83df97fc8f565af7ceaa7cd857ff9d773220fda",
+                "reference": "b83df97fc8f565af7ceaa7cd857ff9d773220fda",
                 "shasum": ""
             },
             "require": {
-                "lotgd/core": "dev-feature/viewpoint-api as v0.3.3-alpha",
+                "lotgd/core": "dev-master as v0.3.3-alpha",
                 "lotgd/module-new-day": "dev-master as v0.3.3-alpha",
                 "lotgd/module-village": "dev-master as v0.3.3-alpha"
             },
@@ -1231,7 +1231,7 @@
                 "source": "https://github.com/lotgd/module-res-fight/tree/master",
                 "issues": "https://github.com/lotgd/module-res-fight/issues"
             },
-            "time": "2018-01-05 12:38:50"
+            "time": "2018-01-14 11:31:08"
         },
         {
             "name": "lotgd/module-village",
@@ -3209,7 +3209,7 @@
         {
             "alias": "v0.3.3-alpha",
             "alias_normalized": "0.3.3.0-alpha",
-            "version": "dev-feature/viewpoint-api",
+            "version": "9999999-dev",
             "package": "lotgd/core"
         },
         {

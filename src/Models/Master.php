@@ -89,11 +89,10 @@ class Master extends BasicEnemy implements CreateableInterface
 
     /**
      * Returns the attack value of a creature, possibly changed by events.
-     * @param Game $game
      * @param bool $ignoreBuffs
      * @return int
      */
-    public function getAttack(Game $game, bool $ignoreBuffs = false): int
+    public function getAttack(bool $ignoreBuffs = false): int
     {
         return $this->attack;
     }
@@ -109,11 +108,10 @@ class Master extends BasicEnemy implements CreateableInterface
 
     /**
      * Returns the defense value of the creature, possibly changed by events.
-     * @param Game $game
      * @param bool $ignoreBuffs
      * @return int
      */
-    public function getDefense(Game $game, bool $ignoreBuffs = false): int
+    public function getDefense(bool $ignoreBuffs = false): int
     {
         return $this->defense;
     }
