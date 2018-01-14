@@ -18,8 +18,7 @@ use LotGD\Module\Village\Module as VillageModule;
 
 class Module implements ModuleInterface {
     const ModuleIdentifier = "lotgd/module-training";
-    const CharacterPropertyBattleState = self::ModuleIdentifier . "/battle-state";
-    const CharacterPropertySeenMaster = self::ModuleIdentifier . "/seen-master";
+    const CharacterPropertySeenMaster = self::ModuleIdentifier . "/seenMaster";
     const BattleContext = self::ModuleIdentifier . "/battle";
 
     public static function handleEvent(Game $g, EventContext $context): EventContext
