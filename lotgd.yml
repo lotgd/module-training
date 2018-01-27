@@ -1,5 +1,5 @@
 entityNamespace: "LotGD\\Module\\Training\\Models"
 subscriptionPatterns:
   - "#h/lotgd/module-new-day/after#"
-  - "#h/lotgd/core/navigate-to/lotgd/module-training/academy#"
+  - "#h/lotgd/core/navigate-to/lotgd/module-training/training#"
   - "#/lotgd/module-res-fight/battleOver#"
