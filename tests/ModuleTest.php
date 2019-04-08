@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace LotGD\Module\Training\Tests;
 
 use Doctrine\Common\Util\Debug;
+use Doctrine\ORM\EntityManager;
 use LotGD\Core\Events\EventContext;
 use LotGD\Core\Events\EventContextData;
 use LotGD\Core\Game;
@@ -41,8 +42,10 @@ class ModuleTest extends ModuleTestCase
         /** @var Game $game */
         $game = $this->g;
         /** @var Character $character */
-        $character = $this->getEntityManager()->getRepository(Character::class)->find(1);
+        $character = $this->getEntityManager()->getRepository(Character::class)->find("10000000-0000-0000-0000-000000000001");
         $game->setCharacter($character);
+
+        $yardSceneId = $this->getTestSceneIds();
 
         // New day
         $v = $game->getViewpoint();
@@ -53,21 +56,33 @@ class ModuleTest extends ModuleTestCase
         $this->assertSame("Village", $v->getTitle());
 
         // Assert action to training yard
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", 5], "Outside");
+        $action = $this->assertHasAction($v, ["getDestinationSceneId", $yardSceneId = $this->getTestSceneIds()], "Outside");
 
         // Assert yard exists
         $game->takeAction($action->getId());
         $this->assertSame("Bluspring's Warrior Training", $v->getTitle());
-        $this->assertHasAction($v, ["getDestinationSceneId", 1], "Back");
+        $this->assertHasAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000001"], "Back");
     }
 
-    protected function goToYard(int $characterId, callable $executeBeforeTakingActionToYard = null): array
+    protected function getTestSceneIds()
+    {
+        $em = $this->getEntityManager(); /** @var EntityManager $game */
+        $game = $this->g; /* @var Game $game */
+
+        $module = $game->getModuleManager()->getModule(Module::ModuleIdentifier);
+        $scenes = $module->getProperty(Module::GeneratedSceneProperty);
+        return $scenes["yard"][0];
+    }
+
+    protected function goToYard(string $characterId, callable $executeBeforeTakingActionToYard = null): array
     {
         /** @var Game $game */
         $game = $this->g;
         /** @var Character $character */
         $character = $this->getEntityManager()->getRepository(Character::class)->find($characterId);
         $game->setCharacter($character);
+
+        $yardSceneId = $this->getTestSceneIds();
 
         // New day
         $v = $game->getViewpoint();
@@ -77,7 +92,7 @@ class ModuleTest extends ModuleTestCase
         $game->takeAction($action->getId());
         $this->assertSame("Village", $v->getTitle());
         // Training Yard
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", 5], "Outside");
+        $action = $this->assertHasAction($v, ["getDestinationSceneId", $yardSceneId], "Outside");
 
         if ($executeBeforeTakingActionToYard !== NULL) {
             $executeBeforeTakingActionToYard($game, $v, $character);
@@ -90,7 +105,7 @@ class ModuleTest extends ModuleTestCase
 
     public function testIfMasterTellsInexperiencedCharacterToComeBackLater()
     {
-        [$game, $v, $character] = $this->goToYard(2);
+        [$game, $v, $character] = $this->goToYard("10000000-0000-0000-0000-000000000002");
         $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
 
         // Set experience to 0 and ask the master.
@@ -98,7 +113,7 @@ class ModuleTest extends ModuleTestCase
         $game->takeAction($action->getId());
         $this->assertSame("Bluspring's Warrior Training", $v->getTitle());
         $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
-        $this->assertHasAction($v, ["getDestinationSceneId", 1], "Back");
+        $this->assertHasAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000001"], "Back");
         $description = explode("\n\n", $v->getDescription());
         $this->assertContains("You approach Mieraband timidly and inquire as to your standing in the class.", $description);
         $this->assertContains("Mieraband states that you will need 100 more experience before you are ready to challenge him in battle.", $description);
@@ -106,7 +121,7 @@ class ModuleTest extends ModuleTestCase
 
     public function testIfMasterTellsExperiencedCharacterThatHeIsReady()
     {
-        [$game, $v, $character] = $this->goToYard(3);
+        [$game, $v, $character] = $this->goToYard("10000000-0000-0000-0000-000000000003");
         $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
 
         // Set experience to 100 and ask the master.
@@ -114,7 +129,7 @@ class ModuleTest extends ModuleTestCase
         $game->takeAction($action->getId());
         $this->assertSame("Bluspring's Warrior Training", $v->getTitle());
         $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
-        $this->assertHasAction($v, ["getDestinationSceneId", 1], "Back");
+        $this->assertHasAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000001"], "Back");
         $description = explode("\n\n", $v->getDescription());
         $this->assertContains("You approach Mieraband timidly and inquire as to your standing in the class.", $description);
         $this->assertContains("Mieraband says, \"Gee, your muscles are getting bigger than mine...\"", $description);
@@ -123,7 +138,7 @@ class ModuleTest extends ModuleTestCase
     public function testIfDeadCharacterCannotChallengeOrQuestionTheMaster()
     {
         [$game, $v, $character] = $this->goToYard(
-            4,
+            "10000000-0000-0000-0000-000000000004",
             function(Game $g, Viewpoint $v, Character $character) {
                 $character->setHealth(0);
             }
@@ -136,7 +151,7 @@ class ModuleTest extends ModuleTestCase
 
     public function testIfCharacterAbove14CannotChallengeOrQuestionTheMaster()
     {
-        [$game, $v, $character] = $this->goToYard(5);
+        [$game, $v, $character] = $this->goToYard("10000000-0000-0000-0000-000000000005");
 
         $this->assertNotHasAction($v, ["getTitle", "Question Master"], "The Yard");
         $this->assertNotHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
@@ -145,7 +160,7 @@ class ModuleTest extends ModuleTestCase
     public function testIfCharacterCannotChallengeOrQuestionMasterIfHeHasAlreadySeenHimToday()
     {
         [$game, $v, $character] = $this->goToYard(
-            6,
+            "10000000-0000-0000-0000-000000000006",
             function(Game $g, Viewpoint $v, Character $c) {
                 $c->setProperty(Module::CharacterPropertySeenMaster, true);
             }
@@ -157,7 +172,7 @@ class ModuleTest extends ModuleTestCase
 
     public function testIfMasterInstaDefeatsCharacterIfHeHasNotEnoughExperience()
     {
-        [$game, $v, $character] = $this->goToYard(7);
+        [$game, $v, $character] = $this->goToYard("10000000-0000-0000-0000-000000000007");
 
         $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
         $action = $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
@@ -165,12 +180,12 @@ class ModuleTest extends ModuleTestCase
         $game->takeAction($action->getId());
 
         $this->assertTrue($character->getProperty(Module::CharacterPropertySeenMaster));
-        $this->assertHasAction($v, ["getDestinationSceneId", 1], "Back");
+        $this->assertHasAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000001"], "Back");
     }
 
     public function testIfCharacterCannotRechallengeMasterIfHeLooses()
     {
-        [$game, $v, $character] = $this->goToYard(8);
+        [$game, $v, $character] = $this->goToYard("10000000-0000-0000-0000-000000000008");
 
         $action = $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
 
@@ -193,14 +208,14 @@ class ModuleTest extends ModuleTestCase
 
         $descs = explode("\n\n", $v->getDescription());
         $descs = array_map("trim", $descs);
-        $this->assertContains("You have been defeated by Mieraband. They stand over your dead body, laughting..", $descs);
+        $this->assertContains("You have been defeated by Mieraband. They stand over your dead body, laughing..", $descs);
         $this->assertTrue($character->getProperty(Module::CharacterPropertySeenMaster));
         $this->assertNotHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
     }
 
     public function testIfCharacterCanRechallengeMasterIfHeWinsAndIfHeReallyIncreasesHisLevel()
     {
-        [$game, $v, $character] = $this->goToYard(9);
+        [$game, $v, $character] = $this->goToYard("10000000-0000-0000-0000-000000000009");
 
         $action = $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
 
@@ -228,168 +243,5 @@ class ModuleTest extends ModuleTestCase
         $this->assertSame(2, $character->getLevel());
         $this->assertFalse($character->getProperty(Module::CharacterPropertySeenMaster));
         $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
-    }
-
-
-    public function _testModuleFlowWhileCharacterStaysAlive()
-    {
-        /** @var Game $game */
-        $game = $this->g;
-        /** @var Character $character */
-        $character = $this->getEntityManager()->getRepository(Character::class)->findById(1)[0];
-        $game->setCharacter($character);
-        $v = $game->getViewpoint();
-
-        // Assert new day happened
-        $this->assertSame("It is a new day!", $v->getTitle());
-
-        // Assert that our new day inserts work
-        $descriptions = explode("\n\n", $v->getDescription());
-        $this->assertContains("You feel energized! Today, you can fight for 20 rounds.", $descriptions);
-        $this->assertSame($character->getMaxHealth(), $character->getHealth());
-        $character->setHealth(90);
-
-        // Should be in the village
-        $action = $v->getActionGroups()[0]->getActions()[0];
-        $game->takeAction($action->getId());
-        $this->assertSame("Village", $v->getTitle());
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", 5], "Outside");
-
-        // Go to the forest
-        $game->takeAction($action->getId());
-        $this->assertSame("The Academy", $v->getTitle());
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Healing");
-        $this->assertHasAction($v, ["getTitle", "Search for a fight"], "Fight");
-        $this->assertHasAction($v, ["getTitle", "Go Thrillseeking"], "Fight");
-        $this->assertHasAction($v, ["getTitle", "Go Slumming"], "Fight");
-
-        // Go to the healer.
-        $game->takeAction($action->getId());
-        $this->assertSame("Healer's Hut", $v->getTitle());
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", 5], "Back");
-
-        // Back to the forest
-        $game->takeAction($action->getId());
-        $this->assertSame("The Academy", $v->getTitle());
-        $action = $this->assertHasAction($v, ["getTitle", "Search for a fight"], "Fight");
-
-        // Start a fight.
-        $game->takeAction($action->getId());
-        $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
-
-        // Attack until someone dies.
-        do {
-            $game->takeAction($action->getId());
-
-            if ($character->getProperty(ResFightModule::CharacterPropertyBattleState) !== null){
-                $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
-            } else {
-                break;
-            }
-        } while (true);
-
-        $this->assertSame("You won!", $v->getTitle());
-
-        // Now go to healing.
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", 6], "Healing");
-        $game->takeAction($action->getId());
-        $this->assertSame("Healer's Hut", $v->getTitle());
-
-        // Assert that we are not completely healed.
-        $this->assertLessThan($character->getMaxHealth(), $character->getHealth());
-        $action = $this->assertHasAction($v, ["getTitle", "Complete Healing"], "Potions");
-        $game->takeAction($action->getId());
-        // Assert we are.
-        $this->assertEquals($character->getMaxHealth(), $character->getHealth());
-    }
-
-    public function _testIfHealingOptionsAreOnlyVisibleToDamagedCharacters()
-    {
-        /** @var Game $game */
-        $game = $this->g;
-        /** @var Character $character */
-        $character = $this->getEntityManager()->getRepository(Character::class)->find(2);
-        $character->setProperty(\LotGD\Module\NewDay\Module::CharacterPropertyLastNewDay, new \DateTime());
-        $game->setCharacter($character);
-        $v = $game->getViewpoint();
-
-        // Take actions
-        $this->takeActions($game, $v, [5, 6]);
-        $this->assertHasAction($v, ["getTitle", "Complete Healing"], "Potions");
-
-        // Heal, go back and return
-        $character->setHealth($character->getMaxHealth());
-        $this->takeActions($game, $v, [5, 6]);
-        $this->assertNotHasAction($v, ["getTitle", "Complete Healing"], "Potions");
-    }
-
-    public function _testIfHealerSuccessfullyRemovesHealthAboveMaximum()
-    {
-        /** @var Game $game */
-        $game = $this->g;
-        /** @var Character $character */
-        $character = $this->getEntityManager()->getRepository(Character::class)->find(3);
-        $character->setProperty(\LotGD\Module\NewDay\Module::CharacterPropertyLastNewDay, new \DateTime());
-        $game->setCharacter($character);
-        $v = $game->getViewpoint();
-
-        // Take actions
-        $this->assertGreaterThan($character->getMaxHealth(), $character->getHealth());
-        $this->takeActions($game, $v, [5, 6]);
-        $this->assertNotHasAction($v, ["getTitle", "Complete Healing"], "Potions");
-        $this->assertSame($character->getMaxHealth(), $character->getHealth());
-    }
-
-    public function _testIfDeadPeopleCannotFightOrHeal()
-    {
-        /** @var Game $game */
-        $game = $this->g;
-        /** @var Character $character */
-        $character = $this->getEntityManager()->getRepository(Character::class)->find(4);
-        $character->setProperty(\LotGD\Module\NewDay\Module::CharacterPropertyLastNewDay, new \DateTime());
-        $game->setCharacter($character);
-        $v = $game->getViewpoint();
-
-        // Take actions
-        $this->assertSame(0, $character->getHealth());
-        $this->takeActions($game, $v, [5]);
-        $this->assertNotHasAction($v, ["getTitle", "Search for a fight"], "Fight");
-        $this->takeActions($game, $v, [6]);
-        $this->assertNotHasAction($v, ["getTitle", "Complete Healing"], "Potions");
-    }
-
-    public function _testIfAForestFightEndsProperlyIfTheCharacterDied()
-    {
-        /** @var Game $game */
-        $game = $this->g;
-        /** @var Character $character */
-        $character = $this->getEntityManager()->getRepository(Character::class)->find(5);
-        $character->setProperty(\LotGD\Module\NewDay\Module::CharacterPropertyLastNewDay, new \DateTime());
-        $game->setCharacter($character);
-        $v = $game->getViewpoint();
-
-        // Take actions
-        $this->assertSame(1, $character->getHealth());
-        $this->takeActions($game, $v, [5, "Go Thrillseeking"]);
-        $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
-
-        // Attack until someone dies.
-        // Make sure we die.
-        $character->setLevel(1);
-        do {
-            $game->takeAction($action->getId());
-
-            if ($character->getProperty(Module::CharacterPropertyBattleState) !== null){
-                $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
-            } else {
-                break;
-            }
-        } while (true);
-
-        $this->assertSame("You died!", $v->getTitle());
-        $this->assertNotHasAction($v, ["getTitle", "Search for a fight"], "Fight");
-        $this->assertNotHasAction($v, ["getTitle", "Go Thrillseeking"], "Fight");
-        $this->assertNotHasAction($v, ["getTitle", "Go Slumming"], "Fight");
-        $this->assertHasAction($v, ["getDestinationSceneId", 1], "Back");
     }
 }

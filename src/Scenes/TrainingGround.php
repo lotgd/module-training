@@ -95,7 +95,7 @@ class TrainingGround
      * @param int $trainingId
      * @return EventContext
      */
-    public static function handleMainYard(Game $g, EventContext $context, int $trainingId): EventContext
+    public static function handleMainYard(Game $g, EventContext $context, string $trainingId): EventContext
     {
         /** @var Viewpoint $v */
         $v = $context->getDataField("viewpoint");
@@ -283,7 +283,7 @@ class TrainingGround
                     }
                 }
 
-                $action = new Action($connectedScene->getId());
+                $action = new Action($connectedScene->getId(), $connectedScene->getTitle());
 
                 if ($connectionGroupName === null) {
                     $actionGroups[ActionGroup::DefaultGroup]->addAction($action);
@@ -318,7 +318,7 @@ class TrainingGround
                 $viewpoint->setTitle("You lost!");
 
                 $viewpoint->addDescriptionParagraph(sprintf(
-                    "You have been defeated by %s. They stand over your dead body, laughting..",
+                    "You have been defeated by %s. They stand over your dead body, laughing..",
                     $battle->getWinner()->getDisplayName()
                 ));
             }

@@ -20,6 +20,7 @@ class Module implements ModuleInterface {
     const ModuleIdentifier = "lotgd/module-training";
     const CharacterPropertySeenMaster = self::ModuleIdentifier . "/seenMaster";
     const BattleContext = self::ModuleIdentifier . "/battle";
+    const GeneratedSceneProperty = "generatedScenes";
 
     public static function handleEvent(Game $g, EventContext $context): EventContext
     {
@@ -59,6 +60,8 @@ class Module implements ModuleInterface {
         $villageScenes = $g->getEntityManager()->getRepository(Scene::class)
             ->findBy(["template" => VillageModule::VillageScene]);
 
+        $generatedScenes = ["yard" => []];
+
         foreach ($villageScenes as $villageScene) {
             $trainingScene = TrainingGround::create();
 
@@ -72,7 +75,11 @@ class Module implements ModuleInterface {
             }
 
             $g->getEntityManager()->persist($trainingScene);
+
+            $generatedScenes["yard"][] = $trainingScene->getId();
         }
+
+        $module->setProperty(self::GeneratedSceneProperty, $generatedScenes);
 
         // Read in masters.
         $file = new SplFileObject(__DIR__ . "/../res/masters.tsv");
@@ -91,8 +98,6 @@ class Module implements ModuleInterface {
             $creature = call_user_func([Master::class, "create"], $data);
             $g->getEntityManager()->persist($creature);
         }
-
-        $g->getEntityManager()->flush();
     }
 
     public static function onUnregister(Game $g, ModuleModel $module)
