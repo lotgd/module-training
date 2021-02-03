@@ -1,5 +1,5 @@
-# module-training
-[![Build Status](https://travis-ci.org/lotgd/module-training.svg?branch=master)](https://travis-ci.org/lotgd/module-training)
+# Training module
+![Tests](https://github.com/lotgd/module-training/workflows/Tests/badge.svg)
 
 This module provides the trainyard, a place where characters can challenge their master and gain a level.
 
