@@ -29,7 +29,9 @@ class ModuleTest extends ModuleTestCase
             EventContextData::create([])
         );
 
-        Module::handleEvent($this->g, $context);
+        $newContext = Module::handleEvent($this->g, $context);
+
+        $this->assertSame($context, $newContext);
     }
 
     public function testTrainingAreaIsPresent()
@@ -51,7 +53,8 @@ class ModuleTest extends ModuleTestCase
         $this->assertSame("Village", $v->getTitle());
 
         // Assert action to training yard
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", $yardSceneId = $this->getTestSceneIds()], "Outside");
+        $this->assertHasAction($v, ["getDestinationSceneId", $yardSceneId = $this->getTestSceneIds()], "Outside");
+        $action = $this->getAction($v, ["getDestinationSceneId", $yardSceneId = $this->getTestSceneIds()], "Outside");
 
         // Assert yard exists
         $game->takeAction($action->getId());
@@ -87,7 +90,8 @@ class ModuleTest extends ModuleTestCase
         $game->takeAction($action->getId());
         $this->assertSame("Village", $v->getTitle());
         // Training Yard
-        $action = $this->assertHasAction($v, ["getDestinationSceneId", $yardSceneId], "Outside");
+        $this->assertHasAction($v, ["getDestinationSceneId", $yardSceneId], "Outside");
+        $action = $this->getAction($v, ["getDestinationSceneId", $yardSceneId], "Outside");
 
         if ($executeBeforeTakingActionToYard !== NULL) {
             $executeBeforeTakingActionToYard($game, $v, $character);
@@ -101,13 +105,15 @@ class ModuleTest extends ModuleTestCase
     public function testIfMasterTellsInexperiencedCharacterToComeBackLater()
     {
         [$game, $v, $character] = $this->goToYard("10000000-0000-0000-0000-000000000002");
-        $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $action = $this->getAction($v, ["getTitle", "Question Master"], "The Yard");
 
         // Set experience to 0 and ask the master.
         $character->setProperty(ResFightModule::CharacterPropertyCurrentExperience, 0);
         $game->takeAction($action->getId());
         $this->assertSame("Bluspring's Warrior Training", $v->getTitle());
-        $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $action = $this->getAction($v, ["getTitle", "Question Master"], "The Yard");
         $this->assertHasAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000001"], "Back");
         $description = explode("\n\n", $v->getDescription());
         $this->assertContains("You approach Mieraband timidly and inquire as to your standing in the class.", $description);
@@ -117,13 +123,15 @@ class ModuleTest extends ModuleTestCase
     public function testIfMasterTellsExperiencedCharacterThatHeIsReady()
     {
         [$game, $v, $character] = $this->goToYard("10000000-0000-0000-0000-000000000003");
-        $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $action = $this->getAction($v, ["getTitle", "Question Master"], "The Yard");
 
         // Set experience to 100 and ask the master.
         $character->setProperty(ResFightModule::CharacterPropertyCurrentExperience, 100);
         $game->takeAction($action->getId());
         $this->assertSame("Bluspring's Warrior Training", $v->getTitle());
-        $action = $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
+        $action = $this->getAction($v, ["getTitle", "Question Master"], "The Yard");
         $this->assertHasAction($v, ["getDestinationSceneId", "20000000-0000-0000-0000-000000000001"], "Back");
         $description = explode("\n\n", $v->getDescription());
         $this->assertContains("You approach Mieraband timidly and inquire as to your standing in the class.", $description);
@@ -170,7 +178,8 @@ class ModuleTest extends ModuleTestCase
         [$game, $v, $character] = $this->goToYard("10000000-0000-0000-0000-000000000007");
 
         $this->assertHasAction($v, ["getTitle", "Question Master"], "The Yard");
-        $action = $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+        $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+        $action = $this->getAction($v, ["getTitle", "Challenge Master"], "The Yard");
 
         $game->takeAction($action->getId());
 
@@ -182,12 +191,14 @@ class ModuleTest extends ModuleTestCase
     {
         [$game, $v, $character] = $this->goToYard("10000000-0000-0000-0000-000000000008");
 
-        $action = $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+        $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+        $action = $this->getAction($v, ["getTitle", "Challenge Master"], "The Yard");
 
         $character->setProperty(ResFightModule::CharacterPropertyCurrentExperience, 100000);
 
         $game->takeAction($action->getId());
-        $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+        $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+        $action = $this->getAction($v, ["getTitle", "Attack"], "Fight");
         $character->setHealth(0);
 
         // Attack until someone dies.
@@ -195,7 +206,8 @@ class ModuleTest extends ModuleTestCase
             $game->takeAction($action->getId());
 
             if ($character->getProperty(ResFightModule::CharacterPropertyBattleState) !== null){
-                $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+                $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+                $action = $this->getAction($v, ["getTitle", "Attack"], "Fight");
             } else {
                 break;
             }
@@ -212,12 +224,14 @@ class ModuleTest extends ModuleTestCase
     {
         [$game, $v, $character] = $this->goToYard("10000000-0000-0000-0000-000000000009");
 
-        $action = $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+        $this->assertHasAction($v, ["getTitle", "Challenge Master"], "The Yard");
+        $action = $this->getAction($v, ["getTitle", "Challenge Master"], "The Yard");
 
         $character->setProperty(ResFightModule::CharacterPropertyCurrentExperience, 100000);
 
         $game->takeAction($action->getId());
-        $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+        $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+        $action = $this->getAction($v, ["getTitle", "Attack"], "Fight");
 
         // Attack until someone dies.
         do {
@@ -225,7 +239,8 @@ class ModuleTest extends ModuleTestCase
             $game->takeAction($action->getId());
 
             if ($character->getProperty(ResFightModule::CharacterPropertyBattleState) !== null){
-                $action = $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+                $this->assertHasAction($v, ["getTitle", "Attack"], "Fight");
+                $action = $this->getAction($v, ["getTitle", "Attack"], "Fight");
             } else {
                 break;
             }

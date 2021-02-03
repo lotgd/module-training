@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace LotGD\Module\Training;
 
+use LotGD\Core\Exceptions\CharacterNotFoundException;
+use LotGD\Core\Models\ModuleProperty;
 use LotGD\Module\Village\SceneTemplates\VillageScene;
 use SplFileObject;
 use LotGD\Core\Game;
@@ -49,6 +51,7 @@ class Module implements ModuleInterface {
      * @param Game $g
      * @param EventContext $context
      * @return EventContext
+     * @throws CharacterNotFoundException
      */
     protected static function handleAfterNewDayEvent(Game $g, EventContext $context): EventContext
     {
@@ -58,8 +61,9 @@ class Module implements ModuleInterface {
     
     public static function onRegister(Game $g, ModuleModel $module)
     {
-        $villageScenes = $g->getEntityManager()->getRepository(Scene::class)
-            ->findBy(["template" => VillageScene::class]);
+        $em = $g->getEntityManager();
+
+        $villageScenes = $em->getRepository(Scene::class)->findBy(["template" => VillageScene::class]);
 
         $generatedScenes = ["yard" => []];
 
@@ -76,15 +80,14 @@ class Module implements ModuleInterface {
             }
 
             $g->getEntityManager()->persist($trainingScene);
+            $g->getEntityManager()->persist($trainingScene->getTemplate());
 
             $generatedScenes["yard"][] = $trainingScene->getId();
         }
 
-        $module->setProperty(self::GeneratedSceneProperty, $generatedScenes);
-
         // Read in masters.
         $file = new SplFileObject(__DIR__ . "/../res/masters.tsv");
-        $titles = $file->fgetc("\t"); // must fetch title line first
+        $titles = $file->fgetc(); // must fetch title line first
         while (!$file->eof()) {
             $data = $file->fgetcsv("\t");
             $data = [
@@ -99,17 +102,29 @@ class Module implements ModuleInterface {
             $creature = call_user_func([Master::class, "create"], $data);
             $g->getEntityManager()->persist($creature);
         }
+
+        $module->setProperty(self::GeneratedSceneProperty, $generatedScenes);
     }
 
     public static function onUnregister(Game $g, ModuleModel $module)
     {
         $em = $g->getEntityManager();
 
-        // delete training grounds
-        $scenes = $g->getEntityManager()->getRepository(Scene::class)
-            ->findBy(["template" => TrainingGround::Template]);
-        foreach($scenes as $scene) {
-            $g->getEntityManager()->remove($scene);
+        // Get the automatically generated scene ids from the module property
+        $generatedScenes = $module->getProperty(self::GeneratedSceneProperty, ["yard" => []]);
+
+        // Fetch all scenes with the TrainingGroup template.
+        /** @var Scene[] $scenes */
+        $scenes = $em->getRepository(Scene::class)->findBy(["template" => TrainingGround::class]);
+
+        foreach ($scenes as $scene) {
+            if (in_array($scene->getId(), $generatedScenes["yard"])) {
+                // Remove Scene and SceneTemplate
+                $em->remove($scene);
+                $em->remove($scene->getTemplate());
+            } else {
+                $scene->setTemplate(null);
+            }
         }
 
         // empty masters
@@ -117,11 +132,7 @@ class Module implements ModuleInterface {
         $cmd = $em->getClassMetadata(Master::class);
         $connection = $em->getConnection();
         $dbPlatform = $connection->getDatabasePlatform();
-        $connection->beginTransaction();
         $q = $dbPlatform->getTruncateTableSql($cmd->getTableName());
         $connection->executeUpdate($q);
-        $connection->commit();
-
-        $g->getEntityManager()->flush();
     }
 }

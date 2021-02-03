@@ -60,13 +60,15 @@ class ModuleTestCase extends ModelTestCase
         $this->g->getEntityManager()->flush();
         $this->g->getEntityManager()->clear();
 
-        parent::tearDown();
-
         Module::onUnregister($this->g, $this->moduleModel);
         $m = $this->getEntityManager()->getRepository(ModuleModel::class)->find(self::Library);
         if ($m) {
             $m->delete($this->getEntityManager());
         }
+        $this->g->getEntityManager()->flush();
+        $this->g->getEntityManager()->clear();
+
+        parent::tearDown();
     }
 
     protected function searchAction(Viewpoint $viewpoint, array $actionParams, ?string $groupTitle = null): ?Action
