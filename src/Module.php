@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace LotGD\Module\Training;
 
+use LotGD\Module\Village\SceneTemplates\VillageScene;
 use SplFileObject;
 use LotGD\Core\Game;
 use LotGD\Core\Events\EventContext;
@@ -58,17 +59,17 @@ class Module implements ModuleInterface {
     public static function onRegister(Game $g, ModuleModel $module)
     {
         $villageScenes = $g->getEntityManager()->getRepository(Scene::class)
-            ->findBy(["template" => VillageModule::VillageScene]);
+            ->findBy(["template" => VillageScene::class]);
 
         $generatedScenes = ["yard" => []];
 
         foreach ($villageScenes as $villageScene) {
-            $trainingScene = TrainingGround::create();
+            $trainingScene = TrainingGround::getScaffold();
 
             // Connect training ground to the village
-            if ($villageScene->hasConnectionGroup(VillageModule::Groups[0])) {
+            if ($villageScene->hasConnectionGroup(VillageScene::Groups[0])) {
                 $villageScene
-                    ->getConnectionGroup(VillageModule::Groups[0])
+                    ->getConnectionGroup(VillageScene::Groups[0])
                     ->connect($trainingScene->getConnectionGroup(TrainingGround::ActionGroups["back"][0]));
             } else {
                 $villageScene->connect($trainingScene->getConnectionGroup(TrainingGround::ActionGroups["back"][0]));

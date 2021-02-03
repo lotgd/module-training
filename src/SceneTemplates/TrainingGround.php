@@ -18,6 +18,7 @@ use LotGD\Core\Models\SceneConnection;
 use LotGD\Core\Models\SceneConnectionGroup;
 use LotGD\Core\Models\SceneTemplate;
 use LotGD\Core\Models\Viewpoint;
+use LotGD\Core\SceneTemplates\SceneTemplateInterface;
 use LotGD\Module\Res\Fight\Fight;
 use LotGD\Module\Res\Fight\Models\CharacterResFightExtension;
 use LotGD\Module\Res\Fight\Module as ResFightModule;
@@ -31,7 +32,7 @@ use LotGD\Module\Training\Module;
  * Class TrainingGround
  * @package LotGD\Module\Academy\Scene
  */
-class TrainingGround
+class TrainingGround implements SceneTemplateInterface
 {
     const Template = "lotgd/module-training/training";
     const ActionGroups = [
@@ -43,6 +44,11 @@ class TrainingGround
 
     private static ?SceneTemplate $template = null;
 
+    public static function getNavigationEvent(): string
+    {
+        return self::Template;
+    }
+
     /**
      * Creates the scene template
      * @return Scene
@@ -51,7 +57,7 @@ class TrainingGround
     public static function getScaffold(): Scene
     {
         if (self::$template === null) {
-            self::$template = new SceneTemplate(self::class, \LotGD\Module\Forest\Module::Module);
+            self::$template = new SceneTemplate(self::class, Module::ModuleIdentifier);
         }
 
         $training = new Scene(
