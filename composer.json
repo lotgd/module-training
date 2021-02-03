@@ -2,7 +2,7 @@
     "name": "lotgd/module-training",
     "description": "Provides warrior training for players to level up.",
     "type": "lotgd-module",
-    "license": "AGPL-3.0",
+    "license": "AGPL-3.0-or-later",
     "authors": [
         {
             "name": "Basilius Sauter",
