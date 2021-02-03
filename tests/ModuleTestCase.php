@@ -20,6 +20,7 @@ use LotGD\Core\Models\Module as ModuleModel;
 
 use LotGD\Module\Training\Module;
 use PHPUnit\Framework\AssertionFailedError;
+use Symfony\Component\Yaml\Yaml;
 
 class ModuleTestCase extends ModelTestCase
 {
@@ -29,30 +30,19 @@ class ModuleTestCase extends ModelTestCase
     public $g;
     protected $moduleModel;
 
-    protected function getDataSet(): \PHPUnit_Extensions_Database_DataSet_YamlDataSet
+    public function getDataSet(): array
     {
-        return new \PHPUnit_Extensions_Database_DataSet_YamlDataSet(implode(DIRECTORY_SEPARATOR, [__DIR__, 'datasets', $this->dataset . '.yml']));
+        return Yaml::parseFile(implode(DIRECTORY_SEPARATOR, [__DIR__, 'datasets', 'module.yml']));
     }
 
-    public function setUp()
+    public function getCwd(): string
+    {
+        return implode(DIRECTORY_SEPARATOR, [__DIR__, '..']);
+    }
+
+    public function setUp(): void
     {
         parent::setUp();
-
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->clear();
-
-        // Make an empty logger for these tests. Feel free to change this
-        // to place log messages somewhere you can easily find them.
-        $logger  = new Logger('test');
-        $logger->pushHandler(new NullHandler());
-
-        // Create a Game object for use in these tests.
-        $this->g = (new GameBuilder())
-            ->withConfiguration(new Configuration(getenv('LOTGD_TESTS_CONFIG_PATH')))
-            ->withLogger($logger)
-            ->withEntityManager($this->getEntityManager())
-            ->withCwd(implode(DIRECTORY_SEPARATOR, [__DIR__, '..']))
-            ->create();
 
         // Register and unregister before/after each test, since
         // handleEvent() calls may expect the module be registered (for example,
@@ -63,26 +53,9 @@ class ModuleTestCase extends ModelTestCase
 
         $this->g->getEntityManager()->flush();
         $this->g->getEntityManager()->clear();
-
-        // Run model extender
-        AnnotationRegistry::registerLoader("class_exists");
-
-        $modelExtender = new ModelExtender();
-        $libraryConfigurationManager = new LibraryConfigurationManager($this->g->getComposerManager(), getcwd());
-
-        foreach ($libraryConfigurationManager->getConfigurations() as $config) {
-            $modelExtensions = $config->getSubKeyIfItExists(["modelExtensions"]);
-
-            if ($modelExtensions) {
-                $modelExtender->addMore($modelExtensions);
-            }
-        }
-
-        $this->g->getEntityManager()->flush();
-        $this->g->getEntityManager()->clear();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->g->getEntityManager()->flush();
         $this->g->getEntityManager()->clear();
@@ -93,28 +66,6 @@ class ModuleTestCase extends ModelTestCase
         $m = $this->getEntityManager()->getRepository(ModuleModel::class)->find(self::Library);
         if ($m) {
             $m->delete($this->getEntityManager());
-        }
-    }
-
-    protected function takeActions(Game $game, Viewpoint $viewpoint, array $actions)
-    {
-        foreach ($actions as $action) {
-            if (is_int($action)) {
-                $searchFor = "getDestinationSceneId";
-            } elseif (is_string($action)) {
-                $searchFor = "getTitle";
-            } else {
-                throw new \Exception("\$actions parameter must be a list containing integers or strings.");
-            }
-
-            foreach ($viewpoint->getActionGroups() as $group) {
-                foreach ($group->getActions() as $a) {
-                    if ($a->$searchFor() == $action) {
-                        $game->takeAction($a->getId());
-                        break 2;
-                    }
-                }
-            }
         }
     }
 
@@ -153,25 +104,5 @@ class ModuleTestCase extends ModelTestCase
         }
 
         return $found;
-    }
-
-    protected function assertNotHasAction(Viewpoint $viewpoint, array $actionParams, ?string $groupTitle = null): void
-    {
-        $action = $this->searchAction($viewpoint, $actionParams, $groupTitle);
-
-        if ($action !== null) {
-            throw new AssertionFailedError("Assertion that viewpoint has not an action failed.");
-        }
-    }
-
-    protected function assertHasAction(Viewpoint $viewpoint, array $actionParams, ?string $groupTitle = null): Action
-    {
-        $action = $this->searchAction($viewpoint, $actionParams, $groupTitle);
-
-        if ($action === null) {
-            throw new AssertionFailedError("Assertion that viewpoint has action failed.");
-        }
-
-        return $action;
     }
 }

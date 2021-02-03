@@ -20,11 +20,6 @@ class ModuleTest extends ModuleTestCase
 {
     const Library = 'lotgd/module-project';
 
-    protected function getDataSet(): \PHPUnit_Extensions_Database_DataSet_YamlDataSet
-    {
-        return new \PHPUnit_Extensions_Database_DataSet_YamlDataSet(implode(DIRECTORY_SEPARATOR, [__DIR__, 'datasets', 'module.yml']));
-    }
-
     public function testHandleUnknownEvent()
     {
         // Always good to test a non-existing event just to make sure nothing happens :).

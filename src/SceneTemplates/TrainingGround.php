@@ -8,6 +8,7 @@ use LotGD\Core\Action;
 use LotGD\Core\ActionGroup;
 use LotGD\Core\Battle;
 use LotGD\Core\Events\EventContext;
+use LotGD\Core\Exceptions\ArgumentException;
 use LotGD\Core\Game;
 use LotGD\Core\Models\Character;
 use LotGD\Core\Models\FighterInterface;
@@ -15,6 +16,7 @@ use LotGD\Core\Models\Scene;
 use LotGD\Core\Models\SceneConnectable;
 use LotGD\Core\Models\SceneConnection;
 use LotGD\Core\Models\SceneConnectionGroup;
+use LotGD\Core\Models\SceneTemplate;
 use LotGD\Core\Models\Viewpoint;
 use LotGD\Module\Res\Fight\Fight;
 use LotGD\Module\Res\Fight\Models\CharacterResFightExtension;
@@ -39,27 +41,34 @@ class TrainingGround
     const ActionQuestion = "question";
     const ActionChallenge = "challenge";
 
+    private static ?SceneTemplate $template = null;
+
     /**
      * Creates the scene template
      * @return Scene
+     * @throws ArgumentException
      */
-    public static function create(): Scene
+    public static function getScaffold(): Scene
     {
-        $training = Scene::create([
-            "template" => self::Template,
-            "title" => "Bluspring's Warrior Training",
-            "description" => "You stroll into the battle grounds. Younger warriors huddle
-    together and point as you pass by. You know this place well. Bluspring hails you, and 
-    you grasp her hand firmly. There is nothing left for you here but memories. You remain
-    a moment longer, and look at the warriors in training before you turn to return to the
-    village.",
-            ]
+        if (self::$template === null) {
+            self::$template = new SceneTemplate(self::class, \LotGD\Module\Forest\Module::Module);
+        }
+
+        $training = new Scene(
+            title: "Bluspring's Warrior Training",
+            description: <<<TXT
+                You stroll into the battle grounds. Younger warriors huddle
+                together and point as you pass by. You know this place well. Bluspring hails you, and 
+                you grasp her hand firmly. There is nothing left for you here but memories. You remain
+                a moment longer, and look at the warriors in training before you turn to return to the
+                village.
+            TXT,
+            template: self::$template,
         );
 
         foreach (self::ActionGroups as $key => $val) {
             $training->addConnectionGroup(new SceneConnectionGroup($val[0], $val[1]));
         }
-
 
         return $training;
     }
