@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace LotGD\Module\Training\Scenes;
+namespace LotGD\Module\Training\SceneTemplates;
 
 use Composer\Script\Event;
 use LotGD\Core\Action;

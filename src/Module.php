@@ -13,7 +13,7 @@ use LotGD\Core\Models\Scene;
 use LotGD\Module\NewDay\Module as NewDayModule;
 use LotGD\Module\Res\Fight\Module as FightModule;
 use LotGD\Module\Training\Models\Master;
-use LotGD\Module\Training\Scenes\TrainingGround;
+use LotGD\Module\Training\SceneTemplates\TrainingGround;
 use LotGD\Module\Village\Module as VillageModule;
 
 class Module implements ModuleInterface {
